@@ -1,0 +1,88 @@
+<% content_for :page_title do %>
+  Mentores
+<% end %>
+
+<%= form_with(url: search_path, method: "get", class: 'filter-form') do |form| %>
+  <%= label_tag(:tipo_ajuda, "Tipo de Ajuda") %>
+  <%= select_tag(:tipo_ajuda, options_for_select(['-', 'Apoio á Integração', 'Apoio Estudo', 'Apoio Bolsas'], params[:tipo_ajuda]), class: "form-control", id: "tipo_ajuda_select") %>
+
+  <div id="area-of-study-filter" style="margin-top: 2vh; display: <%= params[:tipo_ajuda] == 'Apoio Estudo' ? 'block' : 'none' %>;">
+    <%= label_tag(:area_of_study, "Área de Estudo") %>
+    <%= select_tag(:area_of_study, 
+      options_for_select(@areas_of_study, @selected_area_of_study), 
+      class: "form-control area-of-study-select", 
+      id: "area_of_study_select", 
+      style: "width: 44vh;", 
+      disabled: (params[:tipo_ajuda] != 'Apoio Estudo')) %>
+  </div>
+
+  <%= submit_tag("Filtrar", class: 'btn btn-primary', style: "width: 10vh; margin-top: 2vh;") %>
+<% end %>
+
+<div class="mentors-containers">
+  <div class="mentors">
+    <% if @mentors.empty? %>
+      <h2>Não há mentores disponíveis</h2>
+    <% end %>
+    <% @mentors.each do |mentor| %>
+      <div class="mentor">
+        <div class="mentor-image-wrap">
+          <div class="mentor-image-show" style="background-image: url('<%= mentor.default_photo %>')"></div>
+        </div>
+        <div class="mentor-info">
+          <h3 class="mentor-name"><%= mentor.name %></h3>
+          <div class="mentor-subinfo">
+            <ul>
+              <li>Ano: <%= mentor.current_year %></li>
+              <li><%= mentor.area_of_study %></li>
+            </ul>
+            <% if mentor.mentor? %>
+              <%= link_to user_path(mentor), class: 'view_profile' do %>
+                <%= image_tag "info_logo.png", alt: "Info", class: "info_button_image" %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% if @pagy.pages > 1 %>
+  <div class="pagy">
+    <%== pagy_bootstrap_nav(@pagy) %>
+  </div>
+<% end %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const tipoAjudaSelect = document.getElementById('tipo_ajuda_select');
+  const areaOfStudyFilter = document.getElementById('area-of-study-filter');
+  const areaOfStudySelect = document.getElementById('area_of_study_select');
+  const filterForm = document.querySelector('.filter-form');
+
+  // Function to handle tipo_ajuda change
+  tipoAjudaSelect.addEventListener('change', function() {
+    if (this.value === 'Apoio Estudo') {
+      areaOfStudyFilter.style.display = 'block';
+      areaOfStudySelect.removeAttribute('disabled');
+    } else {
+      areaOfStudyFilter.style.display = 'none';
+      areaOfStudySelect.setAttribute('disabled', 'true');
+    }
+  });
+
+  // Prevent form submission of irrelevant fields
+  filterForm.addEventListener('submit', function(event) {
+    const formData = new FormData(filterForm);
+
+    // If tipo_ajuda is not "Apoio Estudo", remove area_of_study from submission
+    if (formData.get('tipo_ajuda') !== 'Apoio Estudo') {
+      console.log('Removing area_of_study from submission.');
+      areaOfStudySelect.name = ''; // Exclude area_of_study from submission
+    } else {
+      areaOfStudySelect.name = 'area_of_study'; // Ensure it's included
+    }
+  });
+});
+</script>

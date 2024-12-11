@@ -1,0 +1,35 @@
+<%= simple_form_for(current_user, url: user_path(current_user), method: :patch, data: { turbo: false }) do |f| %>
+  <div class="bio-field">
+    <div class="x_button">
+      <%= link_to profile_path, class: 'x_button', data: { turbo: false } do %>
+        <%= image_tag "close.png", alt: "X", class: "x_button_image_edit" %>
+      <% end %>
+    </div>
+    <%= f.label :bio %>
+    <%= f.text_area :bio, size: "60x12" %>
+  </div>
+
+  <% if current_user.mentor? %>
+    <div class='profile-h3-p'>
+      <div class="group">
+        <h3>Apoio ao Estudo:</h3>
+        <%= f.check_box :apoio_estudo %>
+      </div>
+      <div class="group">
+        <h3>Apoio a Bolsas:</h3>
+        <%= f.check_box :apoio_bolsas %>
+      </div>
+      <div class="group">
+        <h3>showocial:</h3>
+        <%= f.check_box :ajuda_social %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="photo-field">
+    <%= f.input :photo, as: :file %>
+  </div>
+  <div class="update-bio-button">
+    <%= f.submit "Guardar", class: "submit-button" %>
+  </div>
+<% end %>
